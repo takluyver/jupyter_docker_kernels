@@ -1,0 +1,17 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "jupyter_docker_kernels"
+author = "Thomas Kluyver"
+author-email = "thomas@kluyver.me.uk"
+home-page = "https://github.com/takluyver/jupyter_docker_kernels"
+description-file = "README.rst"
+requires = [
+  "docker",
+]
+classifiers = ["License :: OSI Approved :: MIT License"]
+
+[entrypoints."jupyter_client.kernel_providers"]
+docker = "jupyter_docker_kernels:DockerKernelProvider"
