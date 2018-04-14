@@ -10,11 +10,26 @@ print()
 
 kc = BlockingKernelClient(conn_info, km)
 print("Getting kernel info...")
-print(kc.kernel_info(reply=True).content)
+print(kc.kernel_info().content)
 print()
 
+print("Executing some code...")
+kc.execute_interactive("""
 import time
-time.sleep(5)
-print("Shutting down...")
+
+for a in range(6):
+    print(a)
+    time.sleep(1)
+
+input("Press enter to finish> ")
+print("End of submitted code")
+""")
+print("Finished executing")
+
+import time
+time.sleep(2)
+print("\nShutting down...")
 kc.shutdown_or_terminate()
+kc.close()
+km.cleanup()
 print("Shutdown complete")

@@ -126,6 +126,9 @@ class DockerKernelManager(KernelManagerABC):
         self.container.kill(signum)
     
     def cleanup(self):
-        self.container.stop()
-        self.container.remove()
+        try:
+            self.container.stop()
+            self.container.remove()
+        except docker.errors.NotFound:
+            pass
         self.conn_file_tmpdir.cleanup()
