@@ -2,7 +2,7 @@ import docker
 import docker.errors
 import errno
 import json
-from jupyter_kernel_mgmt.managerabc import KernelManager2ABC
+from jupyter_kernel_mgmt.managerabc import KernelManagerABC
 from jupyter_core.paths import jupyter_runtime_dir
 from jupyter_core.utils import ensure_dir_exists
 import os
@@ -96,7 +96,7 @@ def launch(image, cwd):
 
     return conn_info, DockerKernelManager(container, conn_file_tmpdir)
 
-class DockerKernelManager(KernelManager2ABC):
+class DockerKernelManager(KernelManagerABC):
     def __init__(self, container, conn_file_tmpdir):
         self.container = container
         self.conn_file_tmpdir = conn_file_tmpdir

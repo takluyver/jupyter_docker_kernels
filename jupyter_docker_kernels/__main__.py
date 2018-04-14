@@ -1,4 +1,4 @@
-from jupyter_kernel_mgmt.client2 import BlockingKernelClient2
+from jupyter_kernel_mgmt.client import BlockingKernelClient
 from .provider import DockerKernelProvider
 
 # Try starting a remote kernel and connecting to it.
@@ -8,7 +8,7 @@ print()
 print(conn_info)
 print()
 
-kc = BlockingKernelClient2(conn_info, km)
+kc = BlockingKernelClient(conn_info, km)
 print("Getting kernel info...")
 print(kc.kernel_info(reply=True).content)
 print()
