@@ -13,5 +13,5 @@ requires = [
 ]
 classifiers = ["License :: OSI Approved :: MIT License"]
 
-[entrypoints."jupyter_client.kernel_providers"]
+[entrypoints."jupyter_kernel_mgmt.kernel_type_providers"]
 docker = "jupyter_docker_kernels:DockerKernelProvider"

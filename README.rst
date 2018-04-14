@@ -1,4 +1,4 @@
-This is experimental, to work with a branch not yet merged in jupyter_client.
+This is experimental, to work with jupyter_kernel_mgmt.
 
 You will need docker set up. Build a tagged docker image with the Dockerfile
 in this repo, by running::

@@ -2,7 +2,7 @@ import docker
 import docker.errors
 import errno
 import json
-from jupyter_client.manager2 import KernelManager2ABC
+from jupyter_kernel_mgmt.managerabc import KernelManager2ABC
 from jupyter_core.paths import jupyter_runtime_dir
 from jupyter_core.utils import ensure_dir_exists
 import os
@@ -73,28 +73,33 @@ def make_connection_file(in_dir):
     return cfg
 
 
+def launch(image, cwd):
+    d = os.path.join(jupyter_runtime_dir(), 'docker_kernels')
+    ensure_dir_exists(d)
+    set_sticky_bit(d)
+    conn_file_tmpdir = TemporaryDirectory(dir=d)
+    conn_info = make_connection_file(conn_file_tmpdir.name)
+
+    container = docker.from_env().containers.run(image, detach=True,
+        volumes = {
+            conn_file_tmpdir.name: {'bind': '/connect', 'mode': 'rw'},
+            cwd: {'bind': '/working', 'mode': 'rw'},
+        }
+    )
+
+    container.reload()  # Need this to get the IP address
+    ip = container.attrs['NetworkSettings']['Networks']['bridge']['IPAddress']
+    if not ip:
+        raise RuntimeError("No IP address for docker container")
+    print(container.attrs['NetworkSettings']['Networks'])
+    conn_info['ip'] = ip
+
+    return conn_info, DockerKernelManager(container, conn_file_tmpdir)
+
 class DockerKernelManager(KernelManager2ABC):
-    def __init__(self, image, cwd):
-        d = os.path.join(jupyter_runtime_dir(), 'docker_kernels')
-        ensure_dir_exists(d)
-        set_sticky_bit(d)
-        self.conn_file_tmpdir = TemporaryDirectory(dir=d)
-        conn_info = make_connection_file(self.conn_file_tmpdir.name)
-
-        self.container = docker.from_env().containers.run(image, detach=True,
-            volumes = {
-                self.conn_file_tmpdir.name: {'bind': '/connect', 'mode': 'rw'},
-                cwd: {'bind': '/working', 'mode': 'rw'},
-            }
-        )
-
-        self.container.reload()  # Need this to get the IP address
-        ip =self.container.attrs['NetworkSettings']['Networks']['bridge']['IPAddress']
-        if not ip:
-            raise RuntimeError("No IP address for docker container")
-        print(self.container.attrs['NetworkSettings']['Networks'])
-        conn_info['ip'] = ip
-        self.connection_info = conn_info
+    def __init__(self, container, conn_file_tmpdir):
+        self.container = container
+        self.conn_file_tmpdir = conn_file_tmpdir
 
     def is_alive(self):
         try:
@@ -124,9 +129,3 @@ class DockerKernelManager(KernelManager2ABC):
         self.container.stop()
         self.container.remove()
         self.conn_file_tmpdir.cleanup()
-
-    def get_connection_info(self):
-        return self.connection_info
-
-    def relaunch(self):
-        pass

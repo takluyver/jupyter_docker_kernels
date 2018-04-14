@@ -3,7 +3,7 @@ from jupyter_core.paths import jupyter_config_path
 from pathlib import Path
 import pytoml
 
-from .manager import DockerKernelManager
+from .manager import launch
 
 class DockerKernelProvider(KernelProviderBase):
     id = "docker"
@@ -29,7 +29,6 @@ class DockerKernelProvider(KernelProviderBase):
     def launch(self, name, cwd=None):
         for candidate_name, kinfo in self.find_kernels():
             if candidate_name == name:
-                return DockerKernelManager(kinfo['image'],
-                                          kinfo['cwd'])
+                return launch(kinfo['image'], kinfo.get('cwd', cwd))
 
         raise KeyError(name)
